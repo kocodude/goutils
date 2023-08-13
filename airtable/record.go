@@ -7,7 +7,7 @@ type Record[T any] struct {
 
 type RecordFactory[T any] struct{}
 
-func (rf RecordFactory[T]) CreteFromFields(fields T) *Record[T] {
+func (rf RecordFactory[T]) CreateFromFields(fields T) *Record[T] {
 	return &Record[T]{
 		Fields: fields,
 	}

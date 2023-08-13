@@ -1,12 +1,12 @@
 package airtable
 
 import (
+	"github.com/kocodude/goutils/foundation"
+
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/kocodude/cord/data/libs/foundation"
 )
 
 type TableClient[T any] struct {
@@ -100,10 +100,10 @@ func (tc TableClient[T]) RetrieveOneRecord(reference []string) (*Record[T], erro
 	return &record, nil
 }
 
-func (tcf TableClientFactory[T]) CreateTableClient(createRecordsURLString string, listRecordsURLString string, retrieveOneRecordURLStringBase string) *TableClient[T] {
+func (tcf TableClientFactory[T]) CreateTableClient(apiKeyString string, createRecordsURLString string, listRecordsURLString string, retrieveOneRecordURLStringBase string) *TableClient[T] {
 
 	tableClient := TableClient[T]{
-		apiKeyString:                   "Bearer key52hUhLWwpo4DbB",
+		apiKeyString:                   apiKeyString,
 		createRecordsURLString:         createRecordsURLString,
 		listRecordsURLString:           listRecordsURLString,
 		retrieveOneRecordURLStringBase: retrieveOneRecordURLStringBase,

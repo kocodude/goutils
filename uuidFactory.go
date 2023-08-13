@@ -1,4 +1,4 @@
-package main
+package foundation
 
 import (
 	"github.com/google/uuid"

@@ -8,5 +8,10 @@ type RavelError struct {
 }
 
 func (r RavelError) Error() string {
-	return fmt.Sprintf("RavelError: %v ...wrapping:\n\t%v", r.Message, r.Err)
+
+	if r.Err != nil {
+		return fmt.Sprintf("RavelError: %v ...wrapping:\n\t%v", r.Message, r.Err)
+	}
+
+	return fmt.Sprintf("RavelError: %v", r.Message)
 }

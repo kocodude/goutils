@@ -3,34 +3,52 @@ package airtable
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/kocodude/goutils/foundation"
 	"net/http"
 )
 
-type requestFactory[T any] struct {
-	tableClient *TableClient[T]
-}
-
-func (r requestFactory[T]) createRecords(collection *RecordCollection[T]) (*http.Request, error) {
+func (rf requestFactory[T]) CreateRecords(collection *RecordCollection[T]) (*http.Request, error) {
 
 	body, err := json.Marshal(collection)
 	if err != nil {
-		return nil, err
+		return nil, foundation.RavelError{
+			Err: err,
+			Message: fmt.Sprintf(
+				"failed to marshal into json, collection: %v",
+				collection),
+		}
 	}
 
-	request, err := http.NewRequest("POST", r.tableClient.createRecordsURLString, bytes.NewBuffer(body))
+	request, err := http.NewRequest("POST", rf.tableClient.createRecordsURLString, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, foundation.RavelError{
+			Err: err,
+			Message: fmt.Sprintf(
+				"failed to create request\nstring: %v\nbody: %v",
+				rf.tableClient.createRecordsURLString,
+				body),
+		}
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+
+	return rf.requestWithAuthorization(request)
+}
+
+func (rf requestFactory[T]) ListRecords() (*http.Request, error) {
+
+	request, err := rf.createListRequest()
 	if err != nil {
 		return nil, err
 	}
 
-	request.Header.Set("Authorization", r.tableClient.apiKeyString)
-	request.Header.Set("Content-Type", "application/json")
-
-	return request, nil
+	return rf.requestWithAuthorization(request)
 }
 
-func (r requestFactory[T]) listRecords(filterByFormula string) (*http.Request, error) {
+func (rf requestFactory[T]) ListFilteredRecords(filterByFormula string) (*http.Request, error) {
 
-	request, err := http.NewRequest("GET", r.tableClient.listRecordsURLString, nil)
+	request, err := rf.createListRequest()
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +57,31 @@ func (r requestFactory[T]) listRecords(filterByFormula string) (*http.Request, e
 	queryParams.Add("filterByFormula", filterByFormula)
 	request.URL.RawQuery = queryParams.Encode()
 
-	request.Header.Set("Authorization", r.tableClient.apiKeyString)
+	return rf.requestWithAuthorization(request)
+}
+
+type requestFactory[T any] struct {
+	tableClient *TableClient[T]
+}
+
+func (rf requestFactory[T]) createListRequest() (*http.Request, error) {
+
+	request, err := http.NewRequest("GET", rf.tableClient.listRecordsURLString, nil)
+	if err != nil {
+		return nil, foundation.RavelError{
+			Err: err,
+			Message: fmt.Sprintf(
+				"failed to create new request using string: %v",
+				rf.tableClient.listRecordsURLString),
+		}
+	}
+
+	return request, nil
+}
+
+func (rf requestFactory[T]) requestWithAuthorization(request *http.Request) (*http.Request, error) {
+
+	request.Header.Set("Authorization", rf.tableClient.apiKeyString)
 
 	return request, nil
 }

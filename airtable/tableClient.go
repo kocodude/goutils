@@ -45,7 +45,7 @@ func (tc TableClient[T]) CreateOneRecord(record *Record[T]) (*Record[T], error) 
 
 func (tc TableClient[T]) CreateRecords(records *RecordCollection[T]) (*RecordCollection[T], error) {
 
-	request, err := tc.requestFactory.createRecords(records)
+	request, err := tc.requestFactory.CreateRecords(records)
 	if err != nil {
 		return nil, foundation.RavelError{
 			Err: err,
@@ -58,15 +58,28 @@ func (tc TableClient[T]) CreateRecords(records *RecordCollection[T]) (*RecordCol
 	return tc.executeRequestForRecords(request)
 }
 
-func (tc TableClient[T]) ListRecords(filterByFormula string) (*RecordCollection[T], error) {
+func (tc TableClient[T]) ListFilteredRecords(filterFormula string) (*RecordCollection[T], error) {
 
-	request, err := tc.requestFactory.listRecords(filterByFormula)
+	request, err := tc.requestFactory.ListFilteredRecords(filterFormula)
 	if err != nil {
 		return nil, foundation.RavelError{
 			Err: err,
 			Message: fmt.Sprintf(
-				"failed to build list records request using formula %v",
-				filterByFormula),
+				"failed to create list records request\nformula: %v",
+				filterFormula),
+		}
+	}
+
+	return tc.executeRequestForRecords(request)
+}
+
+func (tc TableClient[T]) ListRecords() (*RecordCollection[T], error) {
+
+	request, err := tc.requestFactory.ListRecords()
+	if err != nil {
+		return nil, foundation.RavelError{
+			Err:     err,
+			Message: "failed to create list records request",
 		}
 	}
 

@@ -1,4 +1,4 @@
-module github.com/kocodude/go-foundation/foundation
+module github.com/kocodude/goutils
 
 go 1.21.0
 

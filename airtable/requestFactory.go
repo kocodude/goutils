@@ -43,22 +43,3 @@ func (r requestFactory[T]) listRecords(filterByFormula string) (*http.Request, e
 
 	return request, nil
 }
-
-func (r requestFactory[T]) retrieveOneRecord(recordIdentifier singleStringArray) (*http.Request, error) {
-
-	reference, err := recordIdentifier.string()
-	if err != nil {
-		return nil, err
-	}
-
-	urlString := r.tableClient.retrieveOneRecordURLStringBase + "/" + reference
-
-	request, err := http.NewRequest("GET", urlString, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	request.Header.Set("Authorization", r.tableClient.apiKeyString)
-
-	return request, nil
-}

@@ -2,13 +2,14 @@ package airtable
 
 import (
 	"github.com/kocodude/goutils/foundation"
+	"io"
 
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 )
 
+// TableClient is the main interface for communicating with an Airtable Table
 type TableClient[T any] struct {
 	apiKeyString                   string
 	createRecordsURLString         string
@@ -16,8 +17,6 @@ type TableClient[T any] struct {
 	retrieveOneRecordURLStringBase string
 	requestFactory                 requestFactory[T]
 }
-
-type TableClientFactory[T any] struct{}
 
 func (tc TableClient[T]) CreateOneRecord(record *Record[T]) (*Record[T], error) {
 
@@ -74,31 +73,7 @@ func (tc TableClient[T]) ListRecords(filterByFormula string) (*RecordCollection[
 	return tc.executeRequestForRecords(request)
 }
 
-func (tc TableClient[T]) RetrieveOneRecord(reference []string) (*Record[T], error) {
-
-	request, err := tc.requestFactory.retrieveOneRecord(reference)
-	if err != nil {
-		return nil, foundation.RavelError{
-			Err: err,
-			Message: fmt.Sprintf(
-				"failed to build retrieve one Record request using %v",
-				reference),
-		}
-	}
-
-	var record Record[T]
-	err = tc.executeRequestAndUnmarshalBody(request, &record)
-	if err != nil {
-		return nil, foundation.RavelError{
-			Err: err,
-			Message: fmt.Sprintf(
-				"failed to execute retrieve one Record request %v and unmarshal body",
-				request),
-		}
-	}
-
-	return &record, nil
-}
+type TableClientFactory[T any] struct{}
 
 func (tcf TableClientFactory[T]) CreateTableClient(apiKeyString string, createRecordsURLString string, listRecordsURLString string, retrieveOneRecordURLStringBase string) *TableClient[T] {
 
@@ -115,6 +90,8 @@ func (tcf TableClientFactory[T]) CreateTableClient(apiKeyString string, createRe
 
 	return &tableClient
 }
+
+// PRIVATE INTERFACE
 
 func (tc TableClient[T]) executeRequestAndUnmarshalBody(request *http.Request, unmarshalledBody interface{}) error {
 
@@ -136,28 +113,12 @@ func (tc TableClient[T]) executeRequestAndUnmarshalBody(request *http.Request, u
 		}
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return err
 	}
 
 	return json.Unmarshal(body, unmarshalledBody)
-}
-
-func (tc TableClient[T]) executeRequestForOneRecord(request *http.Request) (*Record[T], error) {
-
-	var createdRecord Record[T]
-	err := tc.executeRequestAndUnmarshalBody(request, &createdRecord)
-	if err != nil {
-		return nil, foundation.RavelError{
-			Err: err,
-			Message: fmt.Sprintf(
-				"failed to execute retrieve one Record request %v and unmarshal body",
-				request),
-		}
-	}
-
-	return &createdRecord, nil
 }
 
 func (tc TableClient[T]) executeRequestForRecords(request *http.Request) (*RecordCollection[T], error) {

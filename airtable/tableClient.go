@@ -86,6 +86,19 @@ func (tc TableClient[T]) ListRecords() (*RecordCollection[T], error) {
 	return tc.executeRequestForRecords(request)
 }
 
+func (tc TableClient[T]) ListSortedRecords(sortSpecifier string) (*RecordCollection[T], error) {
+
+	request, err := tc.requestFactory.ListSortedRecords(sortSpecifier)
+	if err != nil {
+		return nil, foundation.RavelError{
+			Err:     err,
+			Message: "failed to create list records request",
+		}
+	}
+
+	return tc.executeRequestForRecords(request)
+}
+
 type TableClientFactory[T any] struct{}
 
 func (tcf TableClientFactory[T]) CreateTableClient(apiKeyString string, createRecordsURLString string, listRecordsURLString string, retrieveOneRecordURLStringBase string) *TableClient[T] {

@@ -36,6 +36,20 @@ func (rf requestFactory[T]) CreateRecords(collection *RecordCollection[T]) (*htt
 	return rf.requestWithAuthorization(request)
 }
 
+func (rf requestFactory[T]) ListFilteredRecords(filterByFormula string) (*http.Request, error) {
+
+	request, err := rf.createListRequest()
+	if err != nil {
+		return nil, err
+	}
+
+	queryParams := request.URL.Query()
+	queryParams.Add("filterByFormula", filterByFormula)
+	request.URL.RawQuery = queryParams.Encode()
+
+	return rf.requestWithAuthorization(request)
+}
+
 func (rf requestFactory[T]) ListRecords() (*http.Request, error) {
 
 	request, err := rf.createListRequest()
@@ -46,7 +60,7 @@ func (rf requestFactory[T]) ListRecords() (*http.Request, error) {
 	return rf.requestWithAuthorization(request)
 }
 
-func (rf requestFactory[T]) ListFilteredRecords(filterByFormula string) (*http.Request, error) {
+func (rf requestFactory[T]) ListSortedRecords(sortSpecifier string) (*http.Request, error) {
 
 	request, err := rf.createListRequest()
 	if err != nil {
@@ -54,7 +68,7 @@ func (rf requestFactory[T]) ListFilteredRecords(filterByFormula string) (*http.R
 	}
 
 	queryParams := request.URL.Query()
-	queryParams.Add("filterByFormula", filterByFormula)
+	queryParams.Add("sort", sortSpecifier)
 	request.URL.RawQuery = queryParams.Encode()
 
 	return rf.requestWithAuthorization(request)

@@ -87,9 +87,9 @@ func (tc TableClient[T]) ListRecords() (*RecordCollection[T], error) {
 	return tc.executeRequestForRecords(request)
 }
 
-func (tc TableClient[T]) ListSortedRecords(sortSpecifier string) (*RecordCollection[T], error) {
+func (tc TableClient[T]) ListSortedRecords(field string, direction string) (*RecordCollection[T], error) {
 
-	request, err := tc.requestFactory.ListSortedRecords(sortSpecifier)
+	request, err := tc.requestFactory.ListSortedRecords(field, direction)
 	if err != nil {
 		return nil, foundation.RavelError{
 			Err:     err,

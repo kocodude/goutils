@@ -60,7 +60,7 @@ func (rf requestFactory[T]) ListRecords() (*http.Request, error) {
 	return rf.requestWithAuthorization(request)
 }
 
-func (rf requestFactory[T]) ListSortedRecords(sortSpecifier string) (*http.Request, error) {
+func (rf requestFactory[T]) ListSortedRecords(field string, direction string) (*http.Request, error) {
 
 	request, err := rf.createListRequest()
 	if err != nil {
@@ -68,7 +68,8 @@ func (rf requestFactory[T]) ListSortedRecords(sortSpecifier string) (*http.Reque
 	}
 
 	queryParams := request.URL.Query()
-	queryParams.Add("sort", sortSpecifier)
+	queryParams.Add("sort[0][field]", field)
+	queryParams.Add("sort[0][direction]", direction)
 	request.URL.RawQuery = queryParams.Encode()
 
 	return rf.requestWithAuthorization(request)

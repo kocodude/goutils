@@ -2,6 +2,7 @@ package airtable
 
 import (
 	"github.com/kocodude/goutils/foundation"
+	log "github.com/sirupsen/logrus"
 	"io"
 
 	"encoding/json"
@@ -122,6 +123,8 @@ func (tcf TableClientFactory[T]) CreateTableClient(apiKeyString string, createRe
 func (tc TableClient[T]) executeRequestAndUnmarshalBody(request *http.Request, unmarshalledBody interface{}) error {
 
 	client := &http.Client{}
+
+	log.Debugf("Table client will execute request\n\t%v", request)
 
 	response, err := client.Do(request)
 	if err != nil {
